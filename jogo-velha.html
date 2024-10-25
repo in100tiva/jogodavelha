@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #8E2DE2, #4A00E0);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .welcome-screen {
+            text-align: center;
+        }
+
+        .welcome-screen h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 15px;
+        }
+
+        .welcome-screen p {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+            line-height: 1.4;
+        }
+
+        .menu-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .menu-btn {
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .primary-btn {
+            background: #4A00E0;
+            color: white;
+        }
+
+        .primary-btn:hover {
+            background: #3700B3;
+        }
+
+        .secondary-btn {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .secondary-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .multiplayer-screen, .game-screen {
+            display: none;
+        }
+
+        .game-screen.active,
+        .multiplayer-screen.active,
+        .welcome-screen.active {
+            display: block;
+        }
+
+        .code-display {
+            background: #f0f0f0;
+            padding: 20px;
+            border-radius: 12px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #4A00E0;
+            margin: 20px 0;
+            letter-spacing: 2px;
+        }
+
+        .copy-btn {
+            background: #4A00E0;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .back-btn {
+            background: transparent;
+            border: none;
+            color: #666;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+        /* Estilos do jogo existente */
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .status {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 18px;
+            color: #4A00E0;
+            font-weight: 500;
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .cell {
+            aspect-ratio: 1;
+            background: #f0f0f0;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: #333;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .cell:hover {
+            background: #e0e0e0;
+        }
+
+        .cell.x {
+            color: #E91E63;
+        }
+
+        .cell.o {
+            color: #2196F3;
+        }
+
+        .reset-btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            background: #4A00E0;
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .reset-btn:hover {
+            background: #3700B3;
+        }
+
+        .winner-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .winner-screen.active {
+            display: flex;
+        }
+
+        .winner-text {
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        .play-again-btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 12px;
+            background: #4A00E0;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Tela de Boas-vindas -->
+        <div class="welcome-screen active">
+            <h1>Jogo da Velha</h1>
+            <p>Bem-vindo! Escolha um modo de jogo para começar</p>
+            <div class="menu-buttons">
+                <button class="menu-btn primary-btn" onclick="startLocalGame()">Jogar Local</button>
+                <button class="menu-btn secondary-btn" onclick="showMultiplayerScreen()">Criar Sala Multiplayer</button>
+                <button class="menu-btn secondary-btn" onclick="showJoinMultiplayer()">Entrar em Sala</button>
+            </div>
+        </div>
+
+        <!-- Tela Multiplayer -->
+        <div class="multiplayer-screen">
+            <h1>Sala Multiplayer</h1>
+            <p>Compartilhe este código com seu amigo:</p>
+            <div class="code-display">XK4J9M</div>
+            <button class="copy-btn" onclick="copyCode()">Copiar Código</button>
+            <p>Aguardando jogador entrar...</p>
+            <button class="back-btn" onclick="showWelcomeScreen()">Voltar ao Menu</button>
+        </div>
+
+        <!-- Tela do Jogo -->
+        <div class="game-screen">
+            <h1>Jogo da Velha</h1>
+            <div class="status">Vez do Jogador X</div>
+            <div class="board">
+                <div class="cell" data-index="0"></div>
+                <div class="cell" data-index="1"></div>
+                <div class="cell" data-index="2"></div>
+                <div class="cell" data-index="3"></div>
+                <div class="cell" data-index="4"></div>
+                <div class="cell" data-index="5"></div>
+                <div class="cell" data-index="6"></div>
+                <div class="cell" data-index="7"></div>
+                <div class="cell" data-index="8"></div>
+            </div>
+            <button class="reset-btn">Reiniciar Jogo</button>
+            <button class="back-btn" onclick="showWelcomeScreen()">Voltar ao Menu</button>
+        </div>
+    </div>
+
+    <div class="winner-screen">
+        <div class="winner-text"></div>
+        <button class="play-again-btn">Jogar Novamente</button>
+    </div>
+
+    <script>
+        const welcomeScreen = document.querySelector('.welcome-screen');
+        const multiplayerScreen = document.querySelector('.multiplayer-screen');
+        const gameScreen = document.querySelector('.game-screen');
+        const board = document.querySelector('.board');
+        const cells = document.querySelectorAll('.cell');
+        const status = document.querySelector('.status');
+        const resetBtn = document.querySelector('.reset-btn');
+        const winnerScreen = document.querySelector('.winner-screen');
+        const winnerText = document.querySelector('.winner-text');
+        const playAgainBtn = document.querySelector('.play-again-btn');
+
+        let currentPlayer = 'X';
+        let gameBoard = ['', '', '', '', '', '', '', '', ''];
+        let gameActive = true;
+
+        const winPatterns = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8],
+            [0, 3, 6], [1, 4, 7], [2, 5, 8],
+            [0, 4, 8], [2, 4, 6]
+        ];
+
+        function showScreen(screen) {
+            welcomeScreen.classList.remove('active');
+            multiplayerScreen.classList.remove('active');
+            gameScreen.classList.remove('active');
+            screen.classList.add('active');
+        }
+
+        function showWelcomeScreen() {
+            showScreen(welcomeScreen);
+            resetGame();
+        }
+
+        function showMultiplayerScreen() {
+            showScreen(multiplayerScreen);
+        }
+
+        function startLocalGame() {
+            showScreen(gameScreen);
+            resetGame();
+        }
+
+        function showJoinMultiplayer() {
+            const code = prompt('Digite o código da sala:');
+            if (code) {
+                startLocalGame(); // Por enquanto, inicia jogo local
+            }
+        }
+
+        function copyCode() {
+            navigator.clipboard.writeText('XK4J9M').then(() => {
+                alert('Código copiado!');
+            });
+        }
+
+        function handleCellClick(e) {
+            const cell = e.target;
+            const index = cell.dataset.index;
+
+            if (gameBoard[index] !== '' || !gameActive) return;
+
+            gameBoard[index] = currentPlayer;
+            cell.textContent = currentPlayer;
+            cell.classList.add(currentPlayer.toLowerCase());
+
+            if (checkWinner()) {
+                showWinner(`Jogador ${currentPlayer} venceu!`);
+                gameActive = false;
+                return;
+            }
+
+            if (gameBoard.every(cell => cell !== '')) {
+                showWinner('Empate!');
+                gameActive = false;
+                return;
+            }
+
+            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+            status.textContent = `Vez do Jogador ${currentPlayer}`;
+        }
+
+        function checkWinner() {
+            return winPatterns.some(pattern => {
+                return pattern.every(index => {
+                    return gameBoard[index] === currentPlayer;
+                });
+            });
+        }
+
+        function showWinner(message) {
+            winnerText.textContent = message;
+            winnerScreen.classList.add('active');
+        }
+
+        function resetGame() {
+            gameBoard = ['', '', '', '', '', '', '', '', ''];
+            gameActive = true;
+            currentPlayer = 'X';
+            status.textContent = `Vez do Jogador X`;
+            cells.forEach(cell => {
+                cell.textContent = '';
+                cell.classList.remove('x', 'o');
+            });
+            winnerScreen.classList.remove('active');
+        }
+
+        cells.forEach(cell => {
+            cell.addEventListener('click', handleCellClick);
+        });
+
+        resetBtn.addEventListener('click', resetGame);
+        playAgainBtn.addEventListener('click', resetGame);
+    </script>
+</body>
+</html>
